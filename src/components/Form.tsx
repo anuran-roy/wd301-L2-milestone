@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import LabelledInput from "./LabelledInput";
 
 const formFields = [
-  { id: 1, label: "First Name", fieldType: "text", value: "default" },
-  { id: 2, label: "Last Name", fieldType: "text", value: "default" },
-  { id: 3, label: "Email", fieldType: "email", value: "default" },
-  { id: 4, label: "Date of Birth", fieldType: "date", value: "default" },
+  { id: 1, label: "First Name", fieldType: "text", value: "" },
+  { id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { id: 3, label: "Email", fieldType: "email", value: "" },
+  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
 ];
 
 export default function Form(props: { closeFormCB: () => void }) {
@@ -19,34 +19,19 @@ export default function Form(props: { closeFormCB: () => void }) {
         id: Number(new Date()),
         label: newField,
         fieldType: "text",
-        value: "default",
+        value: "",
       },
     ]);
-    setNewField("New Value");
+    setNewField("");
   };
 
-  const clearForm = (e: any) => {
-    e.preventDefault();
-
-    // console.log(
-    //   `Original value of value=${formState.map((field) => field.value)}`
-    // );
-    Array.from(document.querySelectorAll("input")).map((field: any) => {
-      field.value = "";
-      return field;
-    });
-
-    setFormState(
-      formState.map((field) => {
-        field.value = "";
-        return field;
+  const clearFields = () => {
+    setFormState((oldFormState) =>
+      oldFormState.map((field) => {
+        return { ...field, value: "" };
       })
     );
-    // console.log(
-    //   `Changed value of value=${formState.map((field) => field.value)}`
-    // );
   };
-
   const removeField = (id: number) => {
     setFormState(
       formState.filter((field) => {
@@ -55,9 +40,27 @@ export default function Form(props: { closeFormCB: () => void }) {
     );
   };
 
+  const updateField = (e_value: string, id: number) => {
+    setFormState(
+      formState.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            value: e_value,
+          };
+        }
+
+        return field;
+      })
+    );
+  };
   return (
     <div className="flex flex-col items-center">
-      <form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
         {formState.map((field) => (
           <LabelledInput
             id={field.id}
@@ -65,6 +68,8 @@ export default function Form(props: { closeFormCB: () => void }) {
             label={field.label}
             fieldType={field.fieldType}
             removeFieldCB={removeField}
+            value={field.value}
+            updateFieldCB={updateField}
           />
         ))}
 
@@ -82,7 +87,7 @@ export default function Form(props: { closeFormCB: () => void }) {
           Close Form
         </button>
         <button
-          onClick={clearForm}
+          onClick={clearFields}
           className="btn m-4 rounded-lg bg-sky-500 py-2 px-4 font-bold text-white hover:bg-sky-700"
         >
           Clear Form
